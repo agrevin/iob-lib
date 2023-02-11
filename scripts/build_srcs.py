@@ -19,6 +19,8 @@ def copy_without_override(src, dst):
 
 # build_dir_setup should only be called by the main core. Therefor, executed only one time.
 def build_dir_setup(python_module):
+    core_name = python_module.name
+    print(f"{iob_colors.OKBLUE}Building {core_name} build directory...{iob_colors.ENDC}")
     build_dir = python_module.build_dir
     setup_dir = python_module.setup_dir
     core_flows = python_module.flows
@@ -49,6 +51,7 @@ def build_dir_setup(python_module):
 
 def hw_setup(python_module):
     core_name = python_module.name
+    print(f"{iob_colors.OKBLUE}Building {core_name} hardware sources...{iob_colors.ENDC}")
     core_version = python_module.version
     if 'previous_version' in vars(python_module): core_previous_version = python_module.previous_version
     else: core_previous_version = core_version
@@ -83,6 +86,8 @@ def hw_setup(python_module):
 # Setup simulation related files/modules
 # module: python module representing a *_setup.py file of the root directory of the core/system.
 def sim_setup(python_module):
+    core_name = python_module.name
+    print(f"{iob_colors.OKBLUE}Building {core_name} simulation sources...{iob_colors.ENDC}")
     core_flows = python_module.flows
     build_dir = python_module.build_dir
     setup_dir = python_module.setup_dir
@@ -155,6 +160,9 @@ def fpga_setup(python_module):
         shutil.copytree(f"{LIB_DIR}/{fpga_dir}", f"{build_dir}/{fpga_dir}", dirs_exist_ok=True, copy_function=copy_without_override, ignore=shutil.ignore_patterns('*.pdf'))
 
 def lint_setup(python_module):
+    core_name = python_module.name
+    print(f"{iob_colors.OKBLUE}Building {core_name} lint sources...{iob_colors.ENDC}")
+    
     build_dir = python_module.build_dir
     core_name = python_module.name
     setup_dir = python_module.setup_dir
@@ -174,6 +182,9 @@ def lint_setup(python_module):
 
 #synthesis
 def syn_setup(python_module):
+    core_name = python_module.name
+    print(f"{iob_colors.OKBLUE}Building {core_name} synthesis sources...{iob_colors.ENDC}")
+
     build_dir = python_module.build_dir
     setup_dir = python_module.setup_dir
     syn_dir = "hardware/syn"
@@ -221,6 +232,8 @@ def get_module_lambda(module_path, **kwargs):
 # Setup simulation related files/modules
 # module: python module representing a *_setup.py file of the root directory of the core/system.
 def sw_setup(python_module):
+    core_name = python_module.name
+    print(f"{iob_colors.OKBLUE}Building {core_name} software sources...{iob_colors.ENDC}")
     core_flows = python_module.flows
     build_dir = python_module.build_dir
     setup_dir = python_module.setup_dir
@@ -269,6 +282,8 @@ def python_setup(build_dir):
 
 
 def doc_setup( python_module ):
+    core_name = python_module.name
+    print(f"{iob_colors.OKBLUE}Building {core_name} documentation...{iob_colors.ENDC}")
     core_flows = python_module.flows
     build_dir = python_module.build_dir
     setup_dir = python_module.setup_dir

@@ -3,6 +3,7 @@
 from sys import argv
 import sys
 
+
 def print_usage():
     usage_str = """
                 Usage: ./makehex.py 1st_File 2nd_File 2nd_File_addr ... Firmware_Size > output
@@ -11,30 +12,47 @@ def print_usage():
     print(usage_str, file=sys.stderr)
 
 def main():
-    assert len(argv) % 2 == 1
+    print("makehex.py")
+    try:
+        assert len(argv) % 2 == 1
+    except:
+        print_usage()
+        exit(1)
     nFiles = int((len(argv)-3)/2)+1
-    mem_size = 2**(int(argv[-1]))
-    binfile = [argv[1]]
-    binaddr = [0]
-    bindata = []
+    mem_size = 2**(int(argv[-1])) #hex file size
+    binfile = [argv[1]] #binary file list
+    binaddr = [0] #address list of included binary files
+    bindata = [] #data of included binary files
     aux = []
 
+    #create list of files and addresses
     for i in range(nFiles-1):
         binfile.append(argv[(i+1)*2])
         binaddr.append(int(argv[(i+1)*2+1], 16))
 
+    #read files and store data continuously
     for i in range(nFiles):
         with open(binfile[i], "rb") as f:
             bindata.append(f.read())
         aux.append(0)
 
+    #add padding to binary file if the size is not a multiple of 4
     for i in range(nFiles):
         while(len(bindata[i]) % 4 != 0):
             bindata[i] += b'0'
 
     for i in range(nFiles):
-        assert binaddr[i]+len(bindata[i]) <= mem_size
-        assert (binaddr[i]+len(bindata[i])) % 4 == 0
+        try:
+            assert binaddr[i]+len(bindata[i]) <= mem_size
+        except:
+            print("Error: File {} is too big for the memory size.".format(binfile[i]), file=sys.stderr)
+            exit(1)
+
+        try:
+            assert (binaddr[i]+len(bindata[i])) % 4 == 0
+        except:
+            print("Error: File {} has an invalid size.".format(binfile[i]), file=sys.stderr)
+            exit(1)
 
     valid = False
     for i in range(int(mem_size/4)):

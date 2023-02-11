@@ -5,8 +5,6 @@
 
 include ../../config_build.mk
 
-TEMPLATE_LDS ?=../template.lds
-
 MFLAGS=$(MFLAGS_BASE)$(MFLAG_M)$(MFLAG_C)
 MFLAGS_BASE:=rv32i
 ifeq ($(USE_MUL_DIV),1)
@@ -18,8 +16,10 @@ endif
 
 #default compiler settings
 TOOLCHAIN_PREFIX ?=riscv64-unknown-elf-
+CC=$(TOOLCHAIN_PREFIX)gcc
+
 CFLAGS ?=-Os -nostdlib -march=$(MFLAGS) -mabi=ilp32 --specs=nano.specs -Wcast-align=strict
-LFLAGS ?= -Wl,-Bstatic,-T,$(TEMPLATE_LDS),--strip-debug
+LFLAGS ?= -Wl,-Bstatic,-T,$(LDS),--strip-debug
 LLIBS ?=-lgcc -lc -lnosys
 INCLUDES ?=-I. -I../esrc
 
@@ -31,15 +31,14 @@ endif
 
 build: $(UTARGETS)
 
-%.elf: $(TEMPLATE_LDS) $(HDR) $(SRC)
-	$(TOOLCHAIN_PREFIX)gcc -o $@ $(CFLAGS) $(LFLAGS) $(DEFINES) $(INCLUDES) $(SRC) $(LLIBS)
+%.elf: $(HDR) $(SRC)
+	$(CC) $(CFLAGS) $(INCLUDES) -Wl,-Bstatic,-T,$(LDS),--strip-debug $(DEFINES) -o $@ $(SRC) $(LLIBS)
 	$(TOOLCHAIN_PREFIX)objcopy -O binary $@ $(*F).bin
 
 clean:
 	@rm -rf *.bin *.elf *.map *.hex
 
 debug:
-	@echo $(TEMPLATE_LDS)
 	@echo $(FW_SRC)
 	@echo $(BOOT_SRC)
 	@echo $(HDR)
