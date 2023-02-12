@@ -19,7 +19,8 @@ TOOLCHAIN_PREFIX ?=riscv64-unknown-elf-
 CC=$(TOOLCHAIN_PREFIX)gcc
 
 CFLAGS ?=-Os -nostdlib -march=$(MFLAGS) -mabi=ilp32 --specs=nano.specs -Wcast-align=strict
-LFLAGS ?= -Wl,-Bstatic,-T,$(LDS),--strip-debug
+LDFLAGS ?= -Wl,-Bstatic,-T,$(LDS),--strip-debug
+
 LLIBS ?=-lgcc -lc -lnosys
 INCLUDES ?=-I. -I../esrc
 

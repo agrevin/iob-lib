@@ -27,9 +27,16 @@ def main():
 
     #create list of files and addresses
     for i in range(nFiles-1):
-        binfile.append(argv[(i+1)*2])
-        binaddr.append(int(argv[(i+1)*2+1], 16))
-
+        try:
+            binfile.append(argv[(i+1)*2])
+        except:
+            print_usage()
+            exit(1)
+        try:
+            binaddr.append(int(argv[(i+1)*2+1], 16))
+        except:
+            print_usage()
+            exit(1)
     #read files and store data continuously
     for i in range(nFiles):
         with open(binfile[i], "rb") as f:

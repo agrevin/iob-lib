@@ -59,7 +59,6 @@ RELEASE_CMD=$(PYTHON_DIR)/board_client.py release $(USER)
 run: build
 ifeq ($(NORUN),0)
 ifeq ($(BOARD_SERVER),)
-	cp $(EMB_DIR)/$(NAME)_firmware.bin .
 	bash -c "trap '$(RELEASE_CMD)' INT TERM KILL; $(GRAB_CMD); $(FPGA_PROG); $(CONSOLE_CMD) | tee run.log; $(RELEASE_CMD);"
 else
 	ssh $(BOARD_USER)@$(BOARD_SERVER) "if [ ! -d $(REMOTE_BUILD_DIR) ]; then mkdir -p $(REMOTE_BUILD_DIR); fi"
