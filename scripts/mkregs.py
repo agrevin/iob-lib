@@ -2,6 +2,8 @@
 #
 #    mkregs.py: build Verilog software accessible registers and software getters and setters
 #
+# Copyright (C) 2023  IObundle, Lda
+#
 
 import sys, os
 from math import ceil, log
@@ -167,7 +169,7 @@ class mkregs:
                     f.write(f"`IOB_WIRE({name}_wen, 1)\n")
             elif row['type'] == 'R':
                 f.write(f"`IOB_WIRE({name}, {self.verilog_max(n_bits,1)})\n")
-                if not row['autologic']:
+                if not auto:
                     f.write(f"`IOB_WIRE({name}_rvalid, 1)\n")
                     f.write(f"`IOB_WIRE({name}_ren, 1)\n")
             if not auto:
@@ -202,7 +204,7 @@ class mkregs:
         f.write(f"\t.iob_rvalid_nxt_o(iob_rvalid_nxt),\n")
 
 
-    def write_hwcode(self, table, out_dir, top):
+    def write_hwcode(self, table, out_dir, top, top_if):
 
         #
         # SWREG INSTANCE
@@ -219,7 +221,11 @@ class mkregs:
         f_inst.write(f'\t`include "{top}_inst_params.vh"\n')
         f_inst.write("\n) swreg_0 (\n")
         self.gen_portmap(table, f_inst)
-        f_inst.write('\t`include "iob_s_portmap.vh"\n')
+        if top_if != 'iob':
+            f_inst.write('\t`include "iob_s_portmap.vh"\n')
+        else:
+            f_inst.write('\t`include "iob_s_s_portmap.vh"\n')
+            
         f_inst.write('\t`include "iob_clkenrst_portmap.vh"')
         f_inst.write("\n);\n")
 

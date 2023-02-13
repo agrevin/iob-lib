@@ -21,6 +21,8 @@ interfaces=[
     'iob_wire',
     'iob_m_tb_wire',
     'iob_s_tb_wire',
+    'iob_m_portwiremap',
+    'iob_s_portwiremap',
     'axi_m_port',
     'axi_s_port',
     'axi_m_write_port',
@@ -378,6 +380,22 @@ def s_tb_wire(prefix, fout):
                 fout.write(tbsignal(reverse(table[i]['signal']))+prefix+table[i]['name']+suffix(tbsignal(reverse(table[i]['signal'])))+', '+table[i]['width']+') //'+table[i]['description']+'\n')
     fout.write('\n')
 
+def m_portwiremap(prefix, fout):
+    for i in range(len(table)):
+        if suffix(table[i]['signal']) == '_i':
+             fout.write('`IOB_WIRE2WIRE('+table[i]['name']+suffix(table[i]['signal'])+', '+table[i]['name']+') //'+table[i]['description']+'\n')
+        else:
+             fout.write('`IOB_WIRE2WIRE('+table[i]['name']+', '+table[i]['name']+suffix(table[i]['signal'])+') //'+table[i]['description']+'\n')
+  
+def s_portwiremap(prefix, fout):
+    for i in range(len(table)):
+        if suffix(table[i]['signal']) == '_i':
+             fout.write('`IOB_WIRE2WIRE('+table[i]['name']+', '+table[i]['name']+suffix(reverse(table[i]['signal']))+') //'+table[i]['description']+'\n')
+        else:
+             fout.write('`IOB_WIRE2WIRE('+table[i]['name']+suffix(reverse(table[i]['signal']))+', '+table[i]['name']+') //'+table[i]['description']+'\n')
+  
+
+    
 #
 # Parse Arguments
 #

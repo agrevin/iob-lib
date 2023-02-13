@@ -4,77 +4,86 @@
 
 module iob_merge
   #(
-    parameter N_MASTERS = 2,
-    parameter DATA_W = 32,
-    parameter ADDR_W = 32
+    parameter DATA_W = 0,
+    parameter ADDR_W = 0,
+    parameter N = 0
     )
-   (
-
-    input                              clk_i,
-    input                              arst_i,
-
-    //masters interface
-    input [N_MASTERS*`REQ_W-1:0]       m_req_i,
-    output reg [N_MASTERS*`RESP_W-1:0] m_resp_o,
-
-    //slave interface
-    output reg [`REQ_W-1:0]            s_req_o,
-    input [`RESP_W-1:0]                s_resp_i
+   ( 
+`include "iob_split_i_iob_port.vh"
+`include "iob_split_o_iob_port.vh"
+`include "iob_clkenrst.vh"
     );
 
+   localparam  NBITS=$clog2(N)+($clog2(N)==0);
 
-   localparam Nb=$clog2(N_MASTERS)+($clog2(N_MASTERS)==0);
+   wire [NBITS-1:0] sel, sel_reg;
+   assign sel = addr_i[ADDR_W-2 -: NBITS];
+
+   //avalid mux
+   iob_mux #(.DATA_W(1), .N(N)) iob_mux_avalid
+     (
+      .sel_i(sel),
+      .data_i(avalid_i),
+      .data_o(avalid_o)
+      );
+   
+   //addr mux
+   iob_mux #(.DATA_W(ADDR_W), .N(N)) iob_mux_addr
+     (
+      .sel_i(sel),
+      .data_i(addr_i),
+      .data_o(addr_o)
+      );
+   
+   //wstrb mux
+   iob_mux #(.DATA_W(DATA_W/8), .N(N)) iob_mux_wstrb
+     (
+      .sel_i(sel),
+      .data_i(wstrb_i),
+      .data_o(wstrb_o)
+      );
+   
+   //wdata mux
+   iob_mux #(.DATA_W(DATA_W/8), .N(N)) iob_mux_wdata
+     (
+      .sel_i(sel),
+      .data_i(wdata_i),
+      .data_o(wdata_o)
+      );
+   
+   //ready mux
+   iob_mux #(.DATA_W(DATA_W/8), .N(N)) iob_mux_ready
+     (
+      .sel_i(sel),
+      .data_i(ready_i),
+      .data_o(ready_o)
+      );
+   
+   //rdata mux
+   iob_demux #(.DATA_W(DATA_W/8), .N(N)) iob_demux_rdata
+     (
+      .sel_i(sel_reg),
+      .data_i(rdata_i),
+      .data_o(rdata_o)
+      );
    
 
-   //                               
-   //priority encoder: most significant bus has priority   
-   //
-   reg [Nb-1:0] sel, sel_reg;
+   //rvalid mux
+   iob_demux #(.DATA_W(DATA_W/8), .N(N)) iob_demux_rvalid
+     (
+      .sel_i(sel_reg),
+      .data_i(rvalid_i),
+      .data_o(rvalid_o)
+      );
+         
+   iob_reg #(.DATA_W(), .RST_VAL(0)) sel_reg0
+      (
+       .clk_i(clk_i),
+       .arst_i(arst),
+       .cke_i(cke_i),
+       .data_i(sel),
+       .data_o(sel_reg)
+       );
    
-   //select enable
-   reg sel_en; 
-   always @(posedge clk_i, posedge arst_i)
-     if(arst_i)
-       sel_en <= 1'b1;
-     else if(s_req_o[`avalid(0)])
-       sel_en <= 1'b0;
-     else if(s_resp_i[`ready(0)])
-       sel_en <= ~s_req_o[`avalid(0)];
-
-   
-   //select master
-   integer k; 
-   always @* begin
-      sel = {Nb{1'b0}};
-      for (k=0; k<N_MASTERS; k=k+1)
-        if (~sel_en)
-          sel = sel_reg;
-        else if( m_req_i[`avalid(k)] )
-          sel = k[Nb-1:0];          
-   end
-   
-   //
-   //route master request to slave
-   //  
-   assign s_req_o = m_req_i[`req(sel)];
-
-   //
-   //route response from slave to previously selected master
-   //
-
-   //register master selection
-   always @( posedge clk_i, posedge arst_i ) begin
-      if( arst_i )
-        sel_reg <= {Nb{1'b0}};
-      else
-        sel_reg <= sel;
-   end
-   
-   //route
-   always @* begin
-        m_resp_o = {(`RESP_W*N_MASTERS){1'b0}};
-        m_resp_o[`resp(sel_reg)] = s_resp_i;
-   end
-
    
 endmodule

@@ -100,10 +100,20 @@ def setup( python_module, no_overlap=False, peripheral_ios=True, internal_wires=
     #
     # Build hardware
     build_srcs.hw_setup( python_module )
+
+    # find if there is an ios elememt whoese name contains 'iob_' and 's_port'
+    for interface in ios:
+        if 'iob_' in interface['name'] and 's_port' in interface['name']:
+            top_if = 'iob'
+            break
+        else:
+            top_if = ''
+        
+    
     if regs:
         mkregs_obj.write_hwheader(reg_table, build_dir+'/hardware/src', top)
         mkregs_obj.write_lparam_header(reg_table, build_dir+'/hardware/simulation/src', top)
-        mkregs_obj.write_hwcode(reg_table, build_dir+'/hardware/src', top)
+        mkregs_obj.write_hwcode(reg_table, build_dir+'/hardware/src', top, top_if)
     mk_conf.params_vh(confs, top, build_dir+'/hardware/src')
 
     mk_conf.conf_vh(confs, top, build_dir+'/hardware/src')
@@ -114,12 +124,18 @@ def setup( python_module, no_overlap=False, peripheral_ios=True, internal_wires=
     # Generate sw
     #
     if regs:
-        if os.path.isdir(python_module.setup_dir+'/software/esrc'):
-            mkregs_obj.write_swheader(reg_table, python_module.build_dir+'/software/esrc', top)
-            mkregs_obj.write_swcode(reg_table, python_module.build_dir+'/software/esrc', top)
-        if os.path.isdir(python_module.setup_dir+'/software/psrc'): mkregs_obj.write_swheader(reg_table, python_module.build_dir+'/software/psrc', top)
-    if os.path.isdir(python_module.setup_dir+'/software/esrc'): mk_conf.conf_h(confs, top, python_module.build_dir+'/software/esrc')
-    if os.path.isdir(python_module.setup_dir+'/software/psrc'): mk_conf.conf_h(confs, top, python_module.build_dir+'/software/psrc')
+        if not os.path.isdir(python_module.setup_dir+'/software/esrc'):
+            os.makedirs(python_module.setup_dir+'/software/esrc')            
+        mkregs_obj.write_swheader(reg_table, python_module.build_dir+'/software/esrc', top)
+        mkregs_obj.write_swcode(reg_table, python_module.build_dir+'/software/esrc', top)
+        if not os.path.isdir(python_module.setup_dir+'/software/psrc'):
+            os.makedirs(python_module.setup_dir+'/software/psrc')
+        mkregs_obj.write_swheader(reg_table, python_module.build_dir+'/software/psrc', top)
+
+    if os.path.isdir(python_module.setup_dir+'/software/esrc'):
+        mk_conf.conf_h(confs, top, python_module.build_dir+'/software/esrc')
+    if os.path.isdir(python_module.setup_dir+'/software/psrc'):
+        mk_conf.conf_h(confs, top, python_module.build_dir+'/software/psrc')
 
     #
     # Generate TeX
