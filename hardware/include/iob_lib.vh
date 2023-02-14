@@ -26,14 +26,13 @@
 `define IOB_VAR(NAME, WIDTH) reg [WIDTH-1:0] NAME;
 `define IOB_VAR_SIGNED(NAME, WIDTH) reg signed [WIDTH-1:0] NAME;
 `define IOB_VAR2WIRE(IN, OUT) assign OUT = IN;//convert IOB_VAR to IOB_WIRE
+`define IOB_WIRE2WIRE(NAME, VALUE) assign NAME = VALUE;//asign wire to wire
 //2d arrays
 `define IOB_WIREARRAY_2D(NAME, LEN, WIDTH) wire [WIDTH-1:0] NAME [LEN-1:0];
 `define IOB_WIREARRAY_2D_SIGNED(NAME, LEN, WIDTH) wire signed [WIDTH-1:0] NAME [LEN-1:0];
 `define IOB_VARARRAY_2D(NAME, LEN, WIDTH) reg [WIDTH-1:0] NAME [LEN-1:0];
 `define IOB_VARARRAY_2D_SIGNED(NAME, LEN, WIDTH) reg signed [WIDTH-1:0] NAME [LEN-1:0];
-//wire assignments
-`define IOB_WIRE2WIRE(NAME, VALUE) assign NAME = VALUE;
-`define IOB_VAR2WIRE(NAME, VALUE) assign NAME = VALUE;
+
    
 //ADDRESSES
 `define IOB_NBYTES (DATA_W/8)
