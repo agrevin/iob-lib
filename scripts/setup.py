@@ -136,21 +136,14 @@ def setup(python_module, no_overlap=False, peripheral_ios=True, internal_wires=N
     #
     # Generate sw
     #
-    if regs:
-        if not os.path.isdir(python_module.setup_dir+'/software/esrc'):
-            os.makedirs(python_module.setup_dir+'/software/esrc')
-        mkregs_obj.write_swheader(
-            reg_table, python_module.build_dir+'/software/esrc', top)
-        mkregs_obj.write_swcode(
-            reg_table, python_module.build_dir+'/software/esrc', top)
-        if not os.path.isdir(python_module.setup_dir+'/software/psrc'):
-            os.makedirs(python_module.setup_dir+'/software/psrc')
-        mkregs_obj.write_swheader(
-            reg_table, python_module.build_dir+'/software/psrc', top)
-
-    if os.path.isdir(python_module.setup_dir+'/software/esrc'):
+    if os.path.isdir(python_module.build_dir+'/software'): 
+        os.makedirs(python_module.build_dir+'/software/esrc', exist_ok=True)
+        os.makedirs(python_module.build_dir+'/software/psrc', exist_ok=True)
+        if regs:
+            mkregs_obj.write_swheader(reg_table, python_module.build_dir+'/software/esrc', top)
+            mkregs_obj.write_swcode(reg_table, python_module.build_dir+'/software/esrc', top)
+            mkregs_obj.write_swheader(reg_table, python_module.build_dir+'/software/psrc', top)
         mk_conf.conf_h(confs, top, python_module.build_dir+'/software/esrc')
-    if os.path.isdir(python_module.setup_dir+'/software/psrc'):
         mk_conf.conf_h(confs, top, python_module.build_dir+'/software/psrc')
 
     #
