@@ -1,11 +1,10 @@
 ifeq ($(IS_FPGA),1)
-FPGA_OBJ=$(NAME)_fpga_wrapper.bit
+FPGA_OBJ=$(FPGA_TOP).bit
 else
-FPGA_OBJ=$(NAME)_fpga_wrapper.edif
+FPGA_OBJ=$(FPGA_TOP).edif
 endif
 
 FPGA_LOG=vivado.log
-NORUN=0
 
 FPGA_SERVER=$(VIVADO_SERVER)
 FPGA_USER=$(VIVADO_USER)
